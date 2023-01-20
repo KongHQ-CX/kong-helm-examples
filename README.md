@@ -1,2 +1,3 @@
-# kong-helm-examples
-Sample Helm and other installations for Kong.
+# Kong Helm Examples
+
+Sample Helm, other installations, and misc tools, for Kong setup.
