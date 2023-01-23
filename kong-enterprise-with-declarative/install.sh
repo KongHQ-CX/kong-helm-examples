@@ -67,5 +67,5 @@ else
   helm repo add kong https://charts.konghq.com
   helm repo update kong
 
-  helm upgrade -i kong-crds kong/kong -f values.yaml -n ${1}
+  helm upgrade -i kong-declarative kong/kong -f values.yaml -n ${1}
 fi

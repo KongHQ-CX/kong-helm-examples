@@ -76,23 +76,26 @@ enterprise:
     enabled: false
 
 ingressController:
-  enabled: true
+  enabled: false
   installCRDs: false
 
-extraObjects:
-- apiVersion: networking.k8s.io/v1
-  kind: Ingress
-  metadata:
-    name: kong-test-route
-  spec:
-    ingressClassName: "kong"
-    rules:
-    - http:
+dblessConfig:
+  config: |
+    _format_version: "3.0"
+    services:
+    - connect_timeout: 3000
+      host: backend-hostname
+      name: test-service
+      port: 443
+      protocol: https
+      read_timeout: 10000
+      retries: 2
+      write_timeout: 10000
+      routes:
+      - name: test-route
         paths:
-        - backend:
-            service:
-              name: service-name  # kube service name or virtual host (istio) to forward to
-              port:
-                number: 8443  # port number of the backend service to forward to
-          path: "/service-path"  # the path you want to hit your kong proxy on, to reach this service
-          pathType: ImplementationSpecific
+        - /kong-path
+        protocols:
+        - http
+        - https
+        strip_path: true
