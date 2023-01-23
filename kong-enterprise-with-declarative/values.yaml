@@ -1,0 +1,101 @@
+image:
+  repository: kong/kong-gateway
+  tag: 3.1.1.1-ubuntu
+
+env:
+  database: "off"
+  vaults: "off"
+  admin_listen: "127.0.0.1:8001,127.0.0.1:8444 ssl"
+
+proxy:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: false
+    servicePort: 80
+    containerPort: 80
+  tls:
+    enabled: true
+    containerPort: 443
+    servicePort: 443
+    parameters: []
+  ingress:
+    enabled: true
+    hostname: $INGRESS_HOSTNAME
+    path: "/*"
+    annotations:
+      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port":"443", "StatusCode": "HTTP_301"}}'
+      alb.ingress.kubernetes.io/backend-protocol: HTTPS
+      alb.ingress.kubernetes.io/certificate-arn: $CERT_ARN
+      alb.ingress.kubernetes.io/subnets: $SUBNETS
+      alb.ingress.kubernetes.io/group.name: kong-crd-lb
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/healthcheck-protocol: HTTPS
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internal
+      alb.ingress.kubernetes.io/success-codes: "404"
+      alb.ingress.kubernetes.io/target-type: ip
+      kubernetes.io/ingress.class: alb
+status:
+  enabled: true
+  http:
+    enabled: true
+    containerPort: 8100
+  tls:
+    enabled: true
+    containerPort: 8543
+
+admin:
+  enabled: false
+
+manager:
+  enabled: false
+
+portal:
+  enabled: false
+
+portalapi:
+  enabled: false
+
+cluster:
+  enabled: false
+
+clustertelemetry:
+  enabled: false
+
+enterprise:
+  enabled: true
+  license_secret: kong-enterprise-license
+  vitals:
+    enabled: false
+  portal:
+    enabled: false
+  rbac:
+    enabled: false
+  smtp:
+    enabled: false
+
+ingressController:
+  enabled: false
+  installCRDs: false
+
+dblessConfig:
+  config: |
+    _format_version: "3.0"
+    services:
+    - connect_timeout: 3000
+      host: backend-hostname
+      name: test-service
+      port: 443
+      protocol: https
+      read_timeout: 10000
+      retries: 2
+      write_timeout: 10000
+      routes:
+      - name: test-route
+        paths:
+        - /kong-path
+        protocols:
+        - http
+        - https
+        strip_path: true
